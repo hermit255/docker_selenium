@@ -29,7 +29,7 @@ sleep(wait_default)
 diretory = '/app/screenShot/' + dtstr + '/'
 if not os.path.exists(diretory):
   os.makedirs(diretory)
-browser.save_screenshot(diretory + count_1 + '_' + browser.title + '.png')
+browser.save_screenshot(diretory + str(count_1) + '_' + browser.title + '.png')
 count_1 += 1
 
 # close
