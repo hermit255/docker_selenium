@@ -9,12 +9,16 @@ services:
       - ./app:/app
     working_dir: /app
   app:
-    build:
-      context: ./
-      dockerfile: dockerfile_python
+    image: node:latest
     tty: true
     volumes:
       - ./app:/app
+      - ./node/scripts:/scripts
     depends_on:
       - selenium-chrome
+    environment:
+      - SELENIUM_REMOTE_URL=http://selenium-chrome:4444/wd/hub
+      - WORKDIR_DOCKER=/app
+      - SCRIPTDIR_DOCKER=/scripts
     working_dir: /app
+    command: /scripts/entrypoint.sh
