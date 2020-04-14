@@ -17,7 +17,6 @@ services:
     depends_on:
       - selenium-chrome
     environment:
-      - SELENIUM_REMOTE_URL=http://selenium-chrome:4444/wd/hub
       - WORKDIR_DOCKER=/app
       - SCRIPTDIR_DOCKER=/scripts
     working_dir: /app

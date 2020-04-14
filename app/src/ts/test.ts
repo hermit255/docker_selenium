@@ -1,15 +1,8 @@
-import { Builder, By, Capabilities, Key, until, WebDriver } from 'selenium-webdriver'
-
-const remote_host = 'selenium-chrome';
-const remote_server = `http://${remote_host}:4444/wd/hub`;
-
-const capabilities: Capabilities = Capabilities.chrome()
+import { By, Key, until, WebDriver } from 'selenium-webdriver'
+import { getDriver } from "./modules/getDriver"
 
 async function search(query: string): Promise<void> {
-  const driver: WebDriver = await new Builder()
-    .usingServer(remote_server)
-    .withCapabilities(capabilities)
-    .build()
+  const driver = await getDriver()
   try {
     await driver.get('https://qiita.com/')
     await driver
@@ -25,5 +18,4 @@ async function search(query: string): Promise<void> {
     await driver && driver.quit()
   }
 }
-
 search('selenium')
