@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 
 import subprocess
 import datetime
@@ -11,9 +12,17 @@ remoteServer = 'http://' + remoteHost + ':4444/wd/hub'
 
 interval  = 2
 
-def getDriver():
-  # connection
-  driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=DesiredCapabilities.CHROME)
+def getChromeDriver():
+  options = webdriver.ChromeOptions()
+  driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=options.to_capabilities())
+  driver.implicitly_wait(interval)
+  return driver
+
+def getChromeHeadlessDriver():
+  options = webdriver.ChromeOptions()
+  options.add_argument("--headless")
+
+  driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=options.to_capabilities())
   driver.implicitly_wait(interval)
   return driver
 

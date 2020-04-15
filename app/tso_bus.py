@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-from modules.driver import getDriver, screenShot
+from modules.driver import getChromeDriver, screenShot
 
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.action_chains import ActionChains
@@ -7,6 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 import datetime
 import os
+import sys
 
 # env setting
 count_1 = 1
@@ -20,7 +21,7 @@ def testTokyu():
   imageTitle = 'xxx'
 
   # launch browser
-  driver = getDriver()
+  driver = getChromeDriver()
 
   try:
     # open page
@@ -29,11 +30,11 @@ def testTokyu():
 
     footer = driver.find_element_by_xpath('/html/body/footer')
 
-    inputBirthYear = driver.find_element_by_xpath('//*[@id="birth_year"]')
+    inputBirthYear = driver.find_element_by_name('birth_year')
     Select(inputBirthYear).select_by_value('2010')
-    inputBirthYear = driver.find_element_by_xpath('//*[@id="birth_month"]')
+    inputBirthYear = driver.find_element_by_name('birth_month')
     Select(inputBirthYear).select_by_value('10')
-    inputBirthYear = driver.find_element_by_xpath('//*[@id="birth_day"]')
+    inputBirthYear = driver.find_element_by_name('birth_day')
     Select(inputBirthYear).select_by_value('09')
 
     sleep(1)
@@ -49,7 +50,7 @@ def testTokyu():
     screenShot(driver, imageTitle)
 
   except Exception as e:
-    failure(e)
+    sys.exc_info()
   finally:
     # close
     driver.close()
