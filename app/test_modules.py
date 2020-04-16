@@ -1,27 +1,32 @@
 #!/usr/local/bin/python3
-from modules.driver import getChromeDriver, screenShot, getChromeHeadlessDriver
-from modules.analysis import collectInputs
+from modules.driver import getChromeDriver, screenShot, screenShotFull, getChromeHeadlessDriver
+from modules.analysis import getFormItems, createCsv
 from selenium.webdriver.remote.webelement import WebElement
 
 import sys
 from pprint import pprint
 import traceback
-import csv
+import time
 
-#url = 'https://google.com'
-url = 'https://shinronavi.com/omakase/select'
+
+url = 'https://google.com'
+#url = 'https://shinronavi.com/omakase/select'
+#url = 'https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver'
+#url = 'http://www.htmq.com/html/select.shtml'
+
 def test():
+  driver = getChromeDriver()
+  #driver = getChromeHeadlessDriver()
+
   try:
-    driver = getChromeHeadlessDriver()
     driver.get(url)
-    tags = collectInputs(driver)
+
+    screenShot(driver)
+    #screenShotFull(driver)
+
+    tags = getFormItems(driver)
     tags = list(filter(lambda tag: tag['type'] != 'hidden', tags))
-    array = list(map(lambda tag: tag.values(), tags))
-    with open('/app/storage/csv/sampleCsv.csv', 'w',  encoding='shift_jis') as f:
-      writer = csv.writer(f)
-      writer.writerow(tags[0])
-      writer.writerows(array)
-    pprint(tags)
+    createCsv(tags)
   except Exception as e:
     print(traceback.format_exc())
   finally:

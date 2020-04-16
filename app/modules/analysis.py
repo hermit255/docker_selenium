@@ -1,27 +1,40 @@
 #!/usr/local/bin/python3
+from modules.conf import dirCsv
+
 from selenium import webdriver
+from selenium.webdriver.support.select import Select
 
-def collectInputs(driver: webdriver, option: str = None):
+import csv
+
+def getFormItems(driver: webdriver):
   tags = []
-  elements = driver.find_elements_by_tag_name('input')
-  for element in elements:
-    if not option:
-      tag = {}
-      tag['name'] = element.get_attribute('name')
-      tag['value'] = element.get_attribute('value')
-      location = element.location
-      tag['location_x'] = location['x']
-      tag['location_y'] = location['y']
-      tag['type'] = element.get_attribute('type')
-      if tag['type'] != 'hidden' and tag['type'] != 'submit':
-        tag['title'] = getTitle(element)
-      else:
-        tag['title'] = tag['value']
-      tags.append(tag)
-  return tags
 
-def exceptHiddenInput(tag: list):
-  return tag['type'] != 'hidden'
+  inputs = driver.find_elements_by_tag_name('input')
+  for element in inputs:
+    tag = {}
+    tag['label'] = getLabel(element)
+    tag['id'] = element.get_attribute('id')
+    tag['name'] = element.get_attribute('name')
+    tag['type'] = element.get_attribute('type')
+    tag['value'] = element.get_attribute('value')
+    location = element.location
+    tag['location_x'] = location['x']
+    tag['location_y'] = location['y']
+    tags.append(tag)
+
+  selects = driver.find_elements_by_tag_name('select')
+  for element in selects:
+    tag = {}
+    tag['label'] = getLabel(element)
+    tag['id'] = element.get_attribute('id')
+    tag['name'] = element.get_attribute('name')
+    tag['type'] = 'select'
+    tag['value'] = getSelectOptions(element)
+    location = element.location
+    tag['location_x'] = location['x']
+    tag['location_y'] = location['y']
+    tags.append(tag)
+  return tags
 
 def collectLinks(driver: webdriver):
   tags = []
@@ -34,11 +47,42 @@ def collectLinks(driver: webdriver):
     tags.append(tag)
   return tags
 
-def getTitle(element):
+def getLabel(element):
   try:
-    while element.text == '':
-      element = element.find_element_by_xpath('..')
-    return element.text
+    id = element.get_attribute('id')
+    if id:
+      labels = element.find_elements_by_xpath('../label[@for="{}"]'.format(id))
+      if labels:
+        return labels[0].get_attribute('textContent')
+      else:
+        while not element.get_attribute('textContent'):
+          element = element.find_element_by_xpath('..')
+        return '(maybe)' + element.get_attribute('textContent')
+    else:
+      return ''
   except Exception as e:
     print(e)
-    return 'noLabel'
+    return 'error'
+
+def getSelectOptions(element):
+  select = Select(element)
+  selected = select.all_selected_options
+  options = select.options
+  tags = []
+  for option in options:
+    tag = {}
+    tag['value'] = option.get_attribute('value')
+    tag['label'] = option.get_attribute('textContent')
+    if option in selected: tag['selected'] = 1
+    tags.append(tag)
+  return tags
+
+def createCsv(tags: list, fullPath: str = None):
+  defaultName = 'dName' + '.csv'
+  fullPath = (dirCsv + defaultName) if fullPath is None else fullPath
+
+  array = list(map(lambda tag: tag.values(), tags))
+  with open(fullPath, 'w',  encoding='shift_jis') as f:
+    writer = csv.writer(f)
+    writer.writerow(tags[0])
+    writer.writerows(array)

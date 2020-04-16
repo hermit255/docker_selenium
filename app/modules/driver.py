@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+from modules.conf import dirBase, dirScreenShot, remoteServer, interval
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
@@ -7,37 +8,52 @@ import subprocess
 import datetime
 import os
 
-remoteHost = 'selenium-chrome'
-remoteServer = 'http://' + remoteHost + ':4444/wd/hub'
-
-interval  = 2
-
 def getChromeDriver():
   options = webdriver.ChromeOptions()
   driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=options.to_capabilities())
+
+  wSize = {'width': 1920, 'height': 1080}
+  driver.set_window_size(wSize['width'], wSize['height'])
+
   driver.implicitly_wait(interval)
   return driver
 
 def getChromeHeadlessDriver():
   options = webdriver.ChromeOptions()
   options.add_argument("--headless")
-
   driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=options.to_capabilities())
+
+  wSize = {width: 1920, height: 1080}
+  driver.set_window_size(wSize['width'], wSize['height'])
+
   driver.implicitly_wait(interval)
   return driver
 
 def screenShot(driver: webdriver, title: str = None):
-  # get datetime for filename
-  dt = datetime.datetime.today()
-  dtstr = dt.strftime("%Y%m%d%H%M%S")
-  # save screen shot image
-  diretory = '/app/screenShot/'
-  #diretory = '/app/screenShot/' + dtstr + '/'
+  #title = title if title else driver.title
+  title = getDateTimeStr() if title is None else title
 
-  if title is None:
-    title = driver.title
-  fileName = title + '.png'
-  if not os.path.exists(diretory):
-    os.makedirs(diretory)
-  fullPath = diretory + fileName
-  driver.save_screenshot(fullPath)
+  driver.save_screenshot(getFullPath(title))
+
+def screenShotFull(driver: webdriver, title: str = None):
+  #title = title if title else driver.title
+  title = getDateTimeStr() if title is None else title
+
+  windowSize = driver.get_window_size()
+  body = driver.find_element_by_xpath('//body')
+  windowSize['height'] = body.size['height']
+  driver.set_window_size(windowSize['width'], windowSize['height'])
+  body.screenshot(getFullPath(title))
+
+def getDateTimeStr():
+  dt = datetime.datetime.today()
+  return dt.strftime("%Y%m%d%H%M%S")
+
+def getFullPath(title: str):
+  #directory = dirScreenShot + getDateTimeStr()
+  directory = dirScreenShot
+
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  return directory + title + '.png'
