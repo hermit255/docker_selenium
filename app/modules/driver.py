@@ -1,10 +1,7 @@
 #!/usr/local/bin/python3
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-<<<<<<< HEAD
 from selenium.webdriver.chrome.options import Options
-=======
->>>>>>> 404700ec4870f0b2fdd14b9265c3877bc3c2670b
 
 import subprocess
 import datetime
