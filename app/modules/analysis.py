@@ -3,8 +3,14 @@ from modules.conf import dirCsv
 
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.remote.webelement import WebElement
+from bs4 import BeautifulSoup
 
 import csv
+
+def getAsJson(element: WebElement):
+  html = element.get_attribute('outerHTML')
+  return bs4(html, 'html.parser').a.attrs
 
 def getFormItems(driver: webdriver):
   tags = []
