@@ -8,9 +8,9 @@ from bs4 import BeautifulSoup
 
 import csv
 
-def getAsJson(element: WebElement):
+def getAttrs(element: WebElement) -> dict:
   html = element.get_attribute('outerHTML')
-  return bs4(html, 'html.parser').a.attrs
+  return BeautifulSoup(html, 'html.parser').a.attrs
 
 def getFormItems(driver: webdriver):
   tags = []
