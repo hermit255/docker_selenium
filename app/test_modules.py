@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 from modules.driver import getChromeDriver, screenShot, screenShotFull, getChromeHeadlessDriver
-from modules.analysis import getFormItems, createCsv, getAsJson
+from modules.sites.testSite.pages import MainPage
+from modules.analysis import getFormItems, createCsv, getAttrs
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -17,23 +18,27 @@ url = 'https://google.com'
 #url = 'http://www.htmq.com/html/select.shtml'
 
 def test():
-  """
-  getForm()
-  return
-  """
   driver = getChromeHeadlessDriver()
-  driver.get(url)
+  mainPage = MainPage(driver)
+  mainPage.test()
+  LOC = (By.NAME, 'q')
+  print('finished')
+  """
   locator = (By.XPATH, '//a')
   try:
-    element = driver.find_element_by_tag_name('a')
-    attrs = getAsJson(element)
-    print(attrs)
+    element = driver.find_element(*locator)
+    attrs = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
+    text = element.text
+
+    pprint(text)
+    pprint(attrs)
 
   except Exception as e:
     print(traceback.format_exc())
   finally:
-    driver.close()
-    driver.quit()
+  """
+  driver.close()
+  driver.quit()
 
 def getForm():
   #driver = getChromeDriver()

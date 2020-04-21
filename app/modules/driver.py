@@ -29,13 +29,13 @@ def getChromeHeadlessDriver():
   driver.implicitly_wait(interval)
   return driver
 
-def screenShot(driver: webdriver, title: str = None, subDir: str = ''):
+def screenShot(driver: webdriver, title: str = None, dirSub: str = ''):
   #title = title if title else driver.title
   title = getDateTimeStr() if title is None else title
 
-  driver.save_screenshot(getFullPath(title, subDir))
+  driver.save_screenshot(getFullPath(title, dirSub))
 
-def screenShotFull(driver: webdriver, title: str = None, subDir: str = ''):
+def screenShotFull(driver: webdriver, title: str = None, dirSub: str = ''):
   #title = title if title else driver.title
   title = getDateTimeStr() if title is None else title
 
@@ -43,15 +43,15 @@ def screenShotFull(driver: webdriver, title: str = None, subDir: str = ''):
   body = driver.find_element_by_xpath('//body')
   windowSize['height'] = body.size['height']
   driver.set_window_size(windowSize['width'], windowSize['height'])
-  body.screenshot(getFullPath(title, subDir))
+  body.screenshot(getFullPath(title, dirSub))
 
 def getDateTimeStr():
   dt = datetime.datetime.today()
   return dt.strftime("%Y%m%d%H%M%S")
 
-def getFullPath(title: str, subDir: str = ''):
-  baseDir = dirScreenShot
-  directory = baseDir + subDir
+def getFullPath(title: str, dirSub: str = ''):
+  dirBase = dirScreenShot
+  directory = dirBase + dirSub
 
   if not os.path.exists(directory):
     os.makedirs(directory)
