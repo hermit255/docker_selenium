@@ -21,7 +21,6 @@ def test():
   driver = getChromeHeadlessDriver()
   mainPage = MainPage(driver)
   mainPage.test()
-  LOC = (By.NAME, 'q')
   print('finished')
   """
   locator = (By.XPATH, '//a')
