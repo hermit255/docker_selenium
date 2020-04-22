@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3
 from modules.driver import getChromeDriver, screenShot, screenShotFull, getChromeHeadlessDriver
-from modules.sites.testSite.pages import MainPage
+from modules.sites.testSite.pages import *
 from modules.analysis import getFormItems, createCsv, getAttrs
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
@@ -19,8 +19,17 @@ url = 'https://google.com'
 
 def test():
   driver = getChromeHeadlessDriver()
-  mainPage = MainPage(driver)
-  mainPage.test()
+  page = XPage(driver)
+  page.test()
+  time.sleep(3) # wait for page transition
+  screenShotFull(driver, 'test')
+  """
+  page = GooglePage(driver)
+  page = QuickRefSelectPage(driver)
+  page = QuickRefRadioPage(driver)
+  page = QuickRefCheckboxPage(driver)
+  page = XPage(driver)
+  """
   print('finished')
   """
   locator = (By.XPATH, '//a')
@@ -45,7 +54,6 @@ def getForm():
 
   try:
     driver.get(url)
-    subDir = url + '/'
 
     tags = getFormItems(driver)
     tags = list(filter(lambda tag: tag['type'] != 'hidden', tags))

@@ -44,6 +44,7 @@ def screenShotFull(driver: webdriver, title: str = None, dirSub: str = ''):
   windowSize['height'] = body.size['height']
   driver.set_window_size(windowSize['width'], windowSize['height'])
   body.screenshot(getFullPath(title, dirSub))
+  print('screenShot exported:' + getFullPath(title, dirSub))
 
 def getDateTimeStr():
   dt = datetime.datetime.today()
