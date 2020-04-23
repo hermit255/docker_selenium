@@ -4,13 +4,16 @@ from modules.conf import dirCsv
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.remote.webelement import WebElement
-from bs4 import BeautifulSoup
 
 import csv
 
-def getAttrs(element: WebElement) -> dict:
-  html = element.get_attribute('outerHTML')
-  return BeautifulSoup(html, 'html.parser').a.attrs
+def getAttrs(element: WebElement, driver) -> dict:
+  attrs = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
+def getFormItems() -> list:
+  xpath = '//'
+
+def getLinks() -> list:
+  xpath = '//a'
 
 def getFormItems(driver: webdriver):
   tags = []

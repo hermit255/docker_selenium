@@ -20,6 +20,7 @@ url = 'https://google.com'
 
 def test():
   driver = getChromeDriver()
+  driver.get(url)
   try:
     page = DocsApplyPage(driver)
     page.test()

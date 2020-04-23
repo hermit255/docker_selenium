@@ -53,12 +53,12 @@ class QuickRefCheckboxPage:
     self.checkbox = ('index', 2, 'check')
 
 class DocsApplyPage:
-  first = SimpleElement('//*[.="大学"]')
+  first = ElementBase('//*[.="大学"]')
   bunya = FormCheckbox('bunya[110]')
   areaB = FormCheckbox('hopeAreaB[]')
   logo = LinkImage('/new/_app/_webroot/img/module/layout/logo_top.png')
   memberInfo = LinkText('会員情報呼びだし')
-  goNext = SimpleElement('//input[@name="all"]')
+  goNext = ElementBase('//input[@name="all"]')
 
   def __init__(self, driver):
     self.driver = driver
@@ -68,9 +68,9 @@ class DocsApplyPage:
     self.driver.get(url)
     #self.logo.click()
     #self.memberInfo.click()
-    self.first.click()
+    self.first
     self.bunya = ('index', 0, 'toggle')
     self.areaB = ('index', 1, 'toggle')
     self.areaB = ('index', 2, 'toggle')
     self.areaB = ('index', 40, 'toggle')
-    self.goNext.click()
+    #self.goNext
