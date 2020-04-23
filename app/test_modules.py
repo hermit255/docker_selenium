@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 from modules.driver import getChromeDriver, screenShot, screenShotFull, getChromeHeadlessDriver
 from modules.sites.testSite.pages import *
+from modules.sites.tso_bus.pages import *
 from modules.analysis import getFormItems, createCsv, getAttrs
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
@@ -18,35 +19,42 @@ url = 'https://google.com'
 #url = 'http://www.htmq.com/html/select.shtml'
 
 def test():
-  driver = getChromeHeadlessDriver()
-  page = XPage(driver)
-  page.test()
-  time.sleep(3) # wait for page transition
-  screenShotFull(driver, 'test')
-  """
-  page = GooglePage(driver)
-  page = QuickRefSelectPage(driver)
-  page = QuickRefRadioPage(driver)
-  page = QuickRefCheckboxPage(driver)
-  page = XPage(driver)
-  """
-  print('finished')
-  """
-  locator = (By.XPATH, '//a')
+  driver = getChromeDriver()
   try:
-    element = driver.find_element(*locator)
-    attrs = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
-    text = element.text
+    page = ApplyPage(driver)
+    page.test()
+    time.sleep(3) # wait for page transition
+    screenShotFull(driver, 'test')
+    """
+    driver = getChromeHeadlessDriver()
+    page = GooglePage(driver)
+    page = QuickRefSelectPage(driver)
+    page = QuickRefRadioPage(driver)
+    page = QuickRefCheckboxPage(driver)
+    page = ApplyPage(driver)
+    page = XPage(driver)
+    """
+    print('finished')
+    """
+    locator = (By.XPATH, '//a')
+    try:
+      element = driver.find_element(*locator)
+      attrs = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
+      text = element.text
 
-    pprint(text)
-    pprint(attrs)
+      pprint(text)
+      pprint(attrs)
 
+    except Exception as e:
+      print(traceback.format_exc())
+    finally:
+    """
   except Exception as e:
+    screenShotFull(driver, 'lastScene')
     print(traceback.format_exc())
   finally:
-  """
-  driver.close()
-  driver.quit()
+    driver.close()
+    driver.quit()
 
 def getForm():
   #driver = getChromeDriver()
