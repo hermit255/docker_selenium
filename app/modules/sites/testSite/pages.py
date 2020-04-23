@@ -1,5 +1,4 @@
 from ...page import *
-from modules.driver import screenShot, screenShotFull
 
 import time
 from selenium.webdriver.common.by import By
@@ -36,8 +35,9 @@ class QuickRefRadioPage:
   def test(self):
     url = 'http://www.htmq.com/html/input_radio.shtml'
     self.driver.get(url)
-    #self.radios = 'bad'
-    self.radios = 'good'
+    #self.radios = ('value', 'bad')
+    self.radios = ('index', 1)
+    #self.radios = ('value', 'good')
 
 class QuickRefCheckboxPage:
   checkbox = FormCheckbox('riyu')
@@ -48,19 +48,17 @@ class QuickRefCheckboxPage:
   def test(self):
     url = 'http://www.htmq.com/html/input_checkbox.shtml'
     self.driver.get(url)
-    self.checkbox = (1, 'toggle')
-    self.checkbox = (2, 'check')
-    self.checkbox = (3, 'check')
+    self.checkbox = ('index', 0, 'toggle')
+    self.checkbox = ('index', 1, 'check')
+    self.checkbox = ('index', 2, 'check')
 
-
-
-class XPage:
-  first = Label('大学')
+class DocsApplyPage:
+  first = SimpleElement('//*[.="大学"]')
   bunya = FormCheckbox('bunya[110]')
   areaB = FormCheckbox('hopeAreaB[]')
   logo = LinkImage('/new/_app/_webroot/img/module/layout/logo_top.png')
   memberInfo = LinkText('会員情報呼びだし')
-
+  goNext = SimpleElement('//input[@name="all"]')
 
   def __init__(self, driver):
     self.driver = driver
@@ -69,10 +67,10 @@ class XPage:
     url = 'https://shinronavi.com/omakase/select'
     self.driver.get(url)
     #self.logo.click()
-    self.memberInfo.click()
-    #self.first.click()
-    #self.bunya = (1, 'toggle')
-    #self.areaB = (2, 'toggle')
-    #self.areaB = (3, 'toggle')
-    #self.areaB = (40, 'toggle')
-    #self.button.click()
+    #self.memberInfo.click()
+    self.first.click()
+    self.bunya = ('index', 0, 'toggle')
+    self.areaB = ('index', 1, 'toggle')
+    self.areaB = ('index', 2, 'toggle')
+    self.areaB = ('index', 40, 'toggle')
+    self.goNext.click()

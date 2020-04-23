@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
-from .driver import screenShot, screenShotFull
 from selenium.webdriver.common.by import By
 
 """visit https://selenium-python.readthedocs.io/page-objects.html for more info"""
@@ -10,59 +9,35 @@ WD = 5
 
 class ElementBase:
   waitDuration = WD
-  def __init__(self, locator: tuple):
-    self.locator = locator
+  def __init__(self, xpath: str):
+    self.locator = (By.XPATH, xpath)
 
   def getElement(self, driver, locator):
     WebDriverWait(driver, self.waitDuration).until(
-        lambda driver: driver.find_element(*locator))
+      lambda driver: driver.find_element(*locator))
     return driver.find_element(*locator)
 
 class SimpleElement(ElementBase):
-  def __init__(self, xpath: str):
-    self.locator = (By.XPATH, xpath)
-
   def __get__(self, obj, owner):
     return self.getElement(obj.driver, self.locator)
 
-class Clickable(ElementBase):
-  def __init__(self, xpath: str):
-    self.locator = (By.XPATH, xpath)
-
+"""without setter"""
+class ClickableElement(ElementBase):
   def __get__(self, obj, owner):
     return self.getElement(obj.driver, self.locator)
 
-  def __set__(self, obj, value):
-    # クリックする
-    # //div/li[a][%s]/a を想定するとして
-    xpath = self.locator[1] % value
-    locator = (self.locator[0], xpath)
-    self.getElement(obj.driver, locator).click
-
-class LinkText(ElementBase):
+class LinkText(ClickableElement):
   def __init__(self, text: str):
-    self.locator = (By.XPATH, '//a[.="' + text + '"]')
+    self.locator = (By.XPATH, '//a[.="%s"]' % text)
 
-  def __get__(self, obj, owner):
-    return self.getElement(obj.driver, self.locator)
-
-class LinkImage(ElementBase):
+class LinkImage(ClickableElement):
   def __init__(self, src: str):
-    self.locator = (By.XPATH, '//a[img[@src="' + src + '"]]')
+    self.locator = (By.XPATH, '//a[img[@src="%s"]]' % src)
 
-  def __get__(self, obj, owner):
-    return self.getElement(obj.driver, self.locator)
-
-class Label(ElementBase):
-  def __init__(self, text: str):
-    self.locator = (By.XPATH, '//label[.="' + text + '"]')
-
-  def __get__(self, obj, owner):
-    return self.get(obj.driver, self.locator)
-
+"""with setter"""
 class FormText(ElementBase):
   def __init__(self, name: str):
-    self.locator = (By.XPATH, '//input[@type="text"][@name="' + name + '"]')
+    self.locator = (By.XPATH, '//input[@type="text"][@name="%s"]' % name)
 
   def __get__(self, obj, owner):
     element = self.getElement(obj.driver, self.locator)
@@ -86,7 +61,6 @@ class FormSelect(ElementBase):
     by = str(value[0])
     key = value[1]
 
-    print(self.locator)
     element = self.getElement(obj.driver, self.locator)
     select = Select(element)
 
@@ -117,17 +91,14 @@ class FormRadios(ElementBase):
 
   def __set__(self, obj, value: tuple):
     setBy = str(value[0])
-    key = str(value[1])
+    key = value[1]
 
-    # radio[@name={radio.name}] 自身
     xpathButton = self.xpathButton
 
-    # ラベルがあればラジオボタンをラップするlabelをクリック対象に、なければラジオボタン自体をクリック対象にする
     if (setBy == 'index'):
       xpathWrapper = 'label[%s]' % xpathButton
-      # labelsはあるか無いかわからないのでリストとして取得する
       labels = obj.driver.find_elements(self.locateBy, xpathWrapper)
-      if labels[key]:
+      if len(labels) >= key:
         target = labels[key]
       else:
         buttons = obj.driver.find_elements(self.locateBy, xpathButton)
@@ -136,31 +107,31 @@ class FormRadios(ElementBase):
       xpathButton = '%s[@value="%s"]' % (xpathButton, key)
       xpathWrapper = 'label[%s]' % xpathButton
       labels = obj.driver.find_elements(self.locateBy, xpathWrapper)
-      if labels[0]:
-        target = label
+      if len(labels) != 0:
+        target = labels[0]
       else:
-        target = self.getElement(obj.driver, xpathButton)
+        locator = (self.locateBy, xpathButton)
+        target = self.getElement(obj.driver, locator)
     target.click()
-
 
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
-    self.locator = (By.XPATH, '//*[@type="checkbox"][@name="' + name + '"]')
+    self.locator = (By.XPATH, '//*[@type="checkbox"][@name="%s"]' % name)
 
   def __get__(self, obj, owner):
     return self.getElement(obj.driver, self.locator)
 
   def __set__(self, obj, value: tuple):
     by = str(value[0])
-    key = str(value[1])
+    key = value[1]
     action = str(value[2])
 
     if (by == 'index'):
-      xpath = self.locator[1] + '[' + key + ']'
-      locator = (self.locator[0], xpath)
-      element = self.getElement(obj.driver, locator)
+      xpath = '%s[%i]' % (self.locator[1], key)
+      elements = obj.driver.find_elements(*self.locator)
+      element = elements[key]
     elif (by == 'value'):
-      xpath = self.locator[1] + '[@value="' + key + '"]'
+      xpath = '%s[@value="%s"]' % (self.locator[1], key)
       locator = (self.locator[0], xpath)
       element = self.getElement(obj.driver, locator)
     else:
