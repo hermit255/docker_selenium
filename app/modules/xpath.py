@@ -9,7 +9,7 @@ INPUT_CHECKBOX = 'input[@type="checkbox"]'
 SELECT = 'select'
 SELECT_OPTION = 'select//option'
 
-WITH_LABEL = '[@id=ancestor::html//label/attribute::for]' # forでリンクしたlabelを持つinput
-WITH_INPUT = '[@for=ancestor::html//input/attribute::id]' # forでリンクしたinputを持つlabel
-WRAPPED_BY_LABEL = '[ancestor::label]' # labelに囲まれたinput
-WRAPS_INPUT = '[child::input]' # inputを囲むlabel
+WITH_LABEL = '[@id=ancestor::html//%s/attribute::for]' # forでリンクしたlabelを持つinput(%s='label')
+WITH_INPUT = '[@for=ancestor::html//%s/attribute::id]' # forでリンクしたinputを持つlabel(%s='input')
+WRAPPED_BY_LABEL = '[ancestor::%s]' # labelに囲まれたinput(%s='label')
+WRAPS_INPUT = '[descendant::%s]' # inputを囲むlabel(%s='input')

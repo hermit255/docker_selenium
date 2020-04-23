@@ -125,7 +125,7 @@ class FormRadios(ElementBase):
     element.click()
 
   def getWrapperNode(self, nodeInput):
-      return 'label[child::%s]' % xpathCheckbox
+      return 'label[descendant::%s]' % xpathCheckbox
 
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
@@ -172,4 +172,4 @@ class FormCheckbox(ElementBase):
       raise Exception('invalid action ' + action  + ' for ' + __class__.__name__)
 
   def getWrapperNode(self, xpathCheckbox):
-      return 'label[child::%s]' % xpathCheckbox
+      return 'label[descendant::%s]' % xpathCheckbox
