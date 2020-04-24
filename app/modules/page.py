@@ -67,6 +67,7 @@ class FormSelect(ElementBase):
   def __get__(self, obj, owner):
     xpath = self.xpath
     element = self.getElement(obj.driver, xpath)
+    select = Select(element)
     return element.get_attribute("value")
 
   def __set__(self, obj, value: tuple):
@@ -110,9 +111,15 @@ class FormRadios(ElementBase):
     nodeInput = self.nodeInput
     # 指定したnameを持つinputを囲むラベルがあればラベルをクリック対象に、なければinputを対象にする
     countWrapper = self.countElement(obj.driver, '//' + self.getWrapperNode(nodeInput))
+    countFor = self.countElement(obj.driver, '//' + self.getForNode(nodeInput))
 
     if (method == 'index'):
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      if ( countWrapper > 0 ):
+        node = self.getWrapperNode(nodeInput)
+      elif ( countFor > 0 ):
+        node = self.getForNode(nodeInput)
+      else:
+        node = nodeInput
       xpath = '//' + node
       elements = obj.driver.find_elements(BY, xpath)
       element = elements[key]
@@ -125,8 +132,10 @@ class FormRadios(ElementBase):
     element.click()
 
   def getWrapperNode(self, nodeInput):
-      return 'label[descendant::%s]' % xpathCheckbox
+      return 'label' + WRAPS_INPUT % nodeInput
 
+  def getForNode(self, nodeInput):
+      return 'label' + WITH_INPUT % nodeInput
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
     base = INPUT_CHECKBOX
@@ -171,5 +180,5 @@ class FormCheckbox(ElementBase):
     else:
       raise Exception('invalid action ' + action  + ' for ' + __class__.__name__)
 
-  def getWrapperNode(self, xpathCheckbox):
-      return 'label[descendant::%s]' % xpathCheckbox
+  def getWrapperNode(self, nodeInput):
+      return 'label[descendant::%s]' % nodeInput

@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 
 class GooglePage:
   search = FormText('q')
+  sButton = ElementBase('//input[@value="Google 検索"]')
 
   def __init__(self, driver):
     self.driver = driver
@@ -13,7 +14,7 @@ class GooglePage:
     url = 'https://google.com'
     self.driver.get(url)
     self.search = 'dog'
-    self.sButton.submit()
+    self.sButton
 
 class QuickRefSelectPage:
   bloodSelect = FormSelect('blood')

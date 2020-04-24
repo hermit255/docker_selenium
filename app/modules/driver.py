@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 from modules.conf import dirBase, dirScreenShot, remoteServer, interval
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 
 import datetime
 import os
@@ -9,8 +10,8 @@ def getChromeDriver():
   options = webdriver.ChromeOptions()
   driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=options.to_capabilities())
 
-  wSize = {'width': 1920, 'height': 1080}
-  driver.set_window_size(wSize['width'], wSize['height'])
+  wSize = {1920, 1080}
+  driver.set_window_size(*wSize)
 
   driver.implicitly_wait(interval)
   return driver
@@ -20,23 +21,33 @@ def getChromeHeadlessDriver():
   options.add_argument("--headless")
   driver = webdriver.Remote( command_executor=remoteServer, desired_capabilities=options.to_capabilities())
 
-  wSize = {'width': 1920, 'height': 1080}
-  driver.set_window_size(wSize['width'], wSize['height'])
+  wSize = {1920, 1080}
+  driver.set_window_size(*wSize)
 
   driver.implicitly_wait(interval)
   return driver
 
 def screenShot(driver: webdriver, title: str = None, dirSub: str = ''):
   title = getDateTimeStr() if title is None else title
-
   body = driver.find_element_by_xpath('//body')
   body.screenshot(getFullPath(title, dirSub))
+  #driver.save_screenshot(getFullPath(title, dirSub))
   print('screenShot exported:' + getFullPath(title, dirSub))
 
 def fullScreen(driver: webdriver):
-  body = driver.find_element_by_xpath('//body')
+  WebDriverWait(driver, 3).until(
+    lambda driver: driver.find_element('xpath', '//html'))
+  html = driver.find_element('xpath', '//html')
   windowSize = driver.get_window_size()
-  windowSize['height'] = body.size['height']
+  windowSize['height'] = html.size['height']
+  print(windowSize['width'], windowSize['height'])
+  windowSize['height'] = 6000
+  driver.set_window_size(windowSize['width'], windowSize['height'])
+
+def setWindowSize(driver: webdriver, value: tuple):
+  width = value[0]
+  height = value[1]
+  windowSize = driver.get_window_size()
   driver.set_window_size(windowSize['width'], windowSize['height'])
 
 def getDateTimeStr():
