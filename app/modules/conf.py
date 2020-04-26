@@ -4,6 +4,9 @@ remoteServer = 'http://' + remoteHost + ':4444/wd/hub'
 interval  = 2
 
 dirBase = '/app/'
-dirStorage = dirBase + 'storage/'
-dirScreenShot = dirStorage + 'screenShot/'
-dirCsv = dirStorage + 'csv/'
+dirStorage =  '%sstorage/' % dirBase
+dirScreenShot = '%sscreenShot/' % dirStorage
+dirCsv = '%scsv/' % dirStorage
+
+dirResource = '%sstatic/' % dirBase
+dirImage = '%simages/' % dirResource
