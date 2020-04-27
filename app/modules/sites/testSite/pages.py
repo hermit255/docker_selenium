@@ -25,6 +25,8 @@ class QuickRefSelectPage:
   def test(self):
     url = 'http://www.htmq.com/html/select.shtml'
     self.driver.get(url)
+    self.bloodSelect = ('index', 0)
+    self.bloodSelect = ('value', 'B')
     self.bloodSelect = ('text', 'AB型')
 
 class QuickRefRadioPage:
@@ -36,9 +38,9 @@ class QuickRefRadioPage:
   def test(self):
     url = 'http://www.htmq.com/html/input_radio.shtml'
     self.driver.get(url)
-    #self.radios = ('value', 'bad')
     self.radios = ('index', 1)
-    #self.radios = ('value', 'good')
+    self.radios = ('value', 'good')
+    self.radios = ('value', 'bad')
 
 class QuickRefCheckboxPage:
   checkbox = FormCheckbox('riyu')
@@ -49,9 +51,9 @@ class QuickRefCheckboxPage:
   def test(self):
     url = 'http://www.htmq.com/html/input_checkbox.shtml'
     self.driver.get(url)
-    self.checkbox = ('index', 0, 'toggle')
-    self.checkbox = ('index', 1, 'check')
-    self.checkbox = ('index', 2, 'check')
+    self.checkbox = ('index', 0, 'uncheck')
+    self.checkbox = ('value', '2', 'check')
+    self.checkbox = ('index', 2, 'toggle')
 
 class DocsApplyPage:
   first = ElementBase('//*[.="大学"]')

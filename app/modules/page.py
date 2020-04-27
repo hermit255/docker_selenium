@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
 
-from .xpath import *
+from .xpath import Xpath
 
 """visit https://selenium-python.readthedocs.io/page-objects.html for more info"""
 
@@ -30,20 +30,20 @@ class ElementBase:
 
 class LinkText(ElementBase):
   def __init__(self, text: str):
-    base = LINK_TEXT
+    base = Xpath.textLink
     option = '[.="%s"]' % (text)
     self.xpath = '//%s%s' % (base, option)
 
 
 class LinkImage(ElementBase):
   def __init__(self, src: str):
-    base = LINK_IMAGE
+    base = Xpath.imageLink
     option = '[img[@src="%s"]]' % (src)
     self.xpath = '//%s%s' % (base, option)
 
 class FormText(ElementBase):
   def __init__(self, name: str):
-    base = TEXT_INPUT
+    base = Xpath.formText
     option = '[@name="%s"]' % (name)
     self.xpath = '//%s%s' % (base, option)
 
@@ -60,7 +60,7 @@ class FormText(ElementBase):
 
 class FormSelect(ElementBase):
   def __init__(self, name: str):
-    base = SELECT
+    base = Xpath.formSelect
     option = '[@name="%s"]' % (name)
     self.xpath = '//%s%s' % (base, option)
 
@@ -101,7 +101,7 @@ class FormSelect(ElementBase):
 
 class FormRadios(ElementBase):
   def __init__(self, name: str):
-    base = INPUT_RADIOS
+    base = Xpath.formRadio
     option = '[@name="%s"]' % (name)
     self.nodeInput = base + option
     self.xpath = '//%s%s' % (base, option)
@@ -146,13 +146,14 @@ class FormRadios(ElementBase):
     element.click()
 
   def getWrapperNode(self, nodeInput):
-      return 'label' + WRAPS_INPUT % nodeInput
+      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
 
   def getForNode(self, nodeInput):
-      return 'label' + WITH_INPUT % nodeInput
+      return 'label' + Xpath.getOptionByPairInput(nodeInput)
+
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
-    base = INPUT_CHECKBOXES
+    base = Xpath.formCheckbox
     option = '[@name="%s"]' % (name)
     self.nodeInput = base + option
     self.xpath = '//' + base + option
@@ -199,4 +200,4 @@ class FormCheckbox(ElementBase):
       raise Exception('invalid action ' + action  + ' for ' + __class__.__name__)
 
   def getWrapperNode(self, nodeInput):
-      return 'label[descendant::%s]' % nodeInput
+      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
