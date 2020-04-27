@@ -1,14 +1,55 @@
-#!/usr/local/bin/python3
-from modules.conf import dirCsv
+from .conf import Conf
+from .xpath import *
 
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.by import By
 
 import csv
 
-def getAttrs(element: WebElement, driver) -> dict:
-  attrs = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
+class Analizer:
+  forms: list
+  links: list
+  images: list
+  headers: list
+
+  def __init__(self, url: str, driver: webdriver):
+    self.driver = driver
+    self.driver.get(url)
+
+  def getLinks(self):
+    return self.xxx('//a')
+
+  def xxx(self, xpath):
+    list = self.driver.find_elements(By.XPATH, xpath)
+    ret = []
+    for element in list:
+      ret.append(self.getInfo(element))
+    return ret
+  def findImageLinks():
+    list = self.driver.find_elements(By.XPATH, '//' + Xpath.imageLink)
+  def Forms():
+    list = self.driver.find_elements(By.XPATH, '//form')
+  def Images():
+    list = self.driver.find_elements(By.XPATH, '//img')
+  def Headers():
+    pass
+  def getInfo(self, element: WebElement):
+    try:
+      ss = element.screenshot_as_base64
+    except Exception as e:
+      ss = ''
+    return {
+      'tag': element.tag_name,
+      'attrs': self.getAttrs(element),
+      'text': element.text,
+      'ss': ss,
+      'rect': element.rect,
+    }
+  def getAttrs(self, element: WebElement) -> dict:
+    return self.driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
+
 def getFormItems() -> list:
   xpath = '//'
 
@@ -88,7 +129,7 @@ def getSelectOptions(element):
 
 def createCsv(tags: list, fullPath: str = None):
   defaultName = 'dName' + '.csv'
-  fullPath = (dirCsv + defaultName) if fullPath is None else fullPath
+  fullPath = (Conf.dirCsv + defaultName) if fullPath is None else fullPath
 
   array = list(map(lambda tag: tag.values(), tags))
   with open(fullPath, 'w',  encoding='shift_jis') as f:

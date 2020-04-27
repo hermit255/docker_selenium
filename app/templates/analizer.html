@@ -1,0 +1,31 @@
+{% extends "/_layouts/default.html" %}
+{% block content %}
+
+<h1>Analizer</h1>
+
+<h2>links</h2>
+
+<div class="analysis">
+  <div class="row border-bottom border-dark">
+    <div class="col-6"> body </div>
+    <div class="col-4"> href </div>
+    <div class="col-2"> locate </div>
+  </div>
+{% for element in data %}
+  <div class="row border-bottom border-dark">
+    <div class="col-6">
+        <img class="border border-light" src="data:image/png;base64,{{ element.ss }}" />
+        <p> {{ element.text }} </p>
+    </div>
+    <div class="col-4"> <a href="{{ element.attrs.href }}"> {{ element.attrs.href[0:29] }} </a> </div>
+    <div class="col-2"> {{ element.rect.x }}, {{ element.rect.y }} </div>
+  </div>
+{% endfor %}
+</div>
+
+<style type="text/css">
+  .analysis img {
+    max-width: 100%;
+  }
+</style>
+{% endblock %}

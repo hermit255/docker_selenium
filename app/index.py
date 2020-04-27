@@ -4,11 +4,13 @@ from modules.driver import getChromeDriver, getChromeHeadlessDriver, screenShot,
 from modules.sites.testSite.pages import *
 #from modules.sites.tso_bus.pages import *
 from modules.conf import Conf
+from modules.Analizer import Analizer
 
 from pprint import pprint
 import traceback
 import time
 import random
+import json
 
 app = Flask(__name__)
 
@@ -74,11 +76,22 @@ def test(driver, page):
     randamInt = random.randrange(1, 65535)
     return render_template('test.html', error = error, image = image, randamInt = randamInt)
 
-@app.route('/analize')
-def analize():
+@app.route('/analizer')
+def analizer():
+  #url = "https://google.com"
+  url = "https://qiita.com/yoshi0518/items/14690172f41c32c8286b"
   driver = getChromeDriver()
-  page = DocsApplyPage(driver)
-  return test(driver, page)
+  try:
+    analizer = Analizer(url, driver)
+    data = analizer.getLinks()
+    error = ''
+  except Exception as e:
+    data = {}
+    error = traceback.format_exc()
+  finally:
+    driver.close()
+    driver.quit()
+    return render_template('analizer.html', data = data, error = error)
 
 if __name__ == '__main__':
   app.run(debug=True, host='0.0.0.0', port=80)
