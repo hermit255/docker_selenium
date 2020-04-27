@@ -87,11 +87,11 @@ def test(driver, page):
     shutil.copy2(dirScreenShot + "test.png", dirImage + image)
     error = ''
   except Exception as e:
+    error = traceback.format_exc()
     fullScreen(driver)
     screenShot(driver, 'failure')
     image = "failure.png"
     shutil.copy2(dirScreenShot + "failure.png", dirImage + image)
-    error = traceback.format_exc()
   finally:
     driver.close()
     driver.quit()

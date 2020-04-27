@@ -40,8 +40,6 @@ def fullScreen(driver: webdriver):
   html = driver.find_element('xpath', '//html')
   windowSize = driver.get_window_size()
   windowSize['height'] = html.size['height']
-  print(windowSize['width'], windowSize['height'])
-  windowSize['height'] = 6000
   driver.set_window_size(windowSize['width'], windowSize['height'])
 
 def setWindowSize(driver: webdriver, value: tuple):

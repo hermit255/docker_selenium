@@ -30,7 +30,7 @@ class ElementBase:
 
 class LinkText(ElementBase):
   def __init__(self, text: str):
-    base = LINK_TEXT_SELF
+    base = LINK_TEXT
     option = '[.="%s"]' % (text)
     self.xpath = '//%s%s' % (base, option)
 
@@ -76,22 +76,32 @@ class FormSelect(ElementBase):
 
     xpath = self.xpath
     element = self.getElement(obj.driver, xpath)
+    element.click()
     select = Select(element)
 
     if (method == 'index'):
       if not isinstance(key, int): raise Exception('arg2 expects int type but received ' + str(key))
+      xpathOption = '%s/option[%d]' % (xpath, key)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: driver.find_element(BY, xpath))
       select.select_by_index(key)
     elif (method == 'value'):
+      xpathOption = '%s/option[@value="%s"]' % (xpath, key)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: driver.find_element(BY, xpath))
       select.select_by_value(str(key))
     elif (method == 'text'):
       if not isinstance(key, str): raise Exception('arg2 expects str type but received ' + str(key))
+      xpathOption = '%s/option[text()="%s"]' % (xpath, key)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: driver.find_element(BY, xpath))
       select.select_by_visible_text(str(key))
     else:
       raise Exception('arg1 expects "index", "value", or "text"')
 
 class FormRadios(ElementBase):
   def __init__(self, name: str):
-    base = INPUT_RADIO
+    base = INPUT_RADIOS
     option = '[@name="%s"]' % (name)
     self.nodeInput = base + option
     self.xpath = '//' + base + option
@@ -138,7 +148,7 @@ class FormRadios(ElementBase):
       return 'label' + WITH_INPUT % nodeInput
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
-    base = INPUT_CHECKBOX
+    base = INPUT_CHECKBOXES
     option = '[@name="%s"]' % (name)
     self.nodeInput = base + option
     self.xpath = '//' + base + option
