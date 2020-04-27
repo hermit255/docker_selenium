@@ -38,15 +38,14 @@ def fullScreen(driver: webdriver):
   WebDriverWait(driver, 3).until(
     lambda driver: driver.find_element('xpath', '//html'))
   html = driver.find_element('xpath', '//html')
-  windowSize = driver.get_window_size()
-  windowSize['height'] = html.size['height']
-  driver.set_window_size(windowSize['width'], windowSize['height'])
+
+  page_width = driver.execute_script('return document.body.scrollWidth')
+  page_height = driver.execute_script('return document.body.scrollHeight')
+
+  driver.set_window_size(page_width, page_height)
 
 def setWindowSize(driver: webdriver, value: tuple):
-  width = value[0]
-  height = value[1]
-  windowSize = driver.get_window_size()
-  driver.set_window_size(windowSize['width'], windowSize['height'])
+  driver.set_window_size(*value)
 
 def getDateTimeStr():
   dt = datetime.datetime.today()

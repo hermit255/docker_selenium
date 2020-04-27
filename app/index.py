@@ -2,12 +2,14 @@ from flask import Flask, render_template
 
 from modules.driver import getChromeDriver, getChromeHeadlessDriver, screenShot, fullScreen
 from modules.sites.testSite.pages import *
+from modules.sites.tso_bus.pages import *
 from modules.conf import *
 
 from pprint import pprint
 import traceback
 import time
 import shutil
+import random
 
 app = Flask(__name__)
 
@@ -19,83 +21,60 @@ def index():
 def google():
   driver = getChromeDriver()
   page = GooglePage(driver)
-
-  result = test(driver, page)
-  error = result['error']
-  image = result['image']
-  return render_template('test.html', error = error, image = image)
+  return test(driver, page)
 
 @app.route('/select')
 def select():
   driver = getChromeDriver()
   page = QuickRefSelectPage(driver)
-
-  result = test(driver, page)
-  error = result['error']
-  image = result['image']
-  return render_template('test.html', error = error, image = image)
+  return test(driver, page)
 
 @app.route('/radio')
 def radio():
   driver = getChromeDriver()
   page = QuickRefRadioPage(driver)
-
-  result = test(driver, page)
-  error = result['error']
-  image = result['image']
-  return render_template('test.html', error = error, image = image)
+  return test(driver, page)
 
 @app.route('/checkbox')
 def checkbox():
   driver = getChromeDriver()
   page = QuickRefCheckboxPage(driver)
-
-  result = test(driver, page)
-  error = result['error']
-  image = result['image']
-  return render_template('test.html', error = error, image = image)
-
+  return test(driver, page)
 
 @app.route('/shinro')
 def shinro():
   driver = getChromeDriver()
   page = DocsApplyPage(driver)
+  return test(driver, page)
 
-  result = test(driver, page)
-  error = result['error']
-  image = result['image']
-  return render_template('test.html', error = error, image = image)
-
-@app.route('/xpage')
-def xpage():
+@app.route('/bus')
+def bus():
   driver = getChromeDriver()
-  page = XPage(driver)
+  #driver = getChromeHeadlessDriver()
 
-  result = test(driver, page)
-  error = result['error']
-  image = result['image']
-  return render_template('test.html', error = error, image = image)
+  page = TsoApplyPage(driver)
+  return test(driver, page)
 
 def test(driver, page):
   try:
     page.test()
-    time.sleep(3) # wait for page transition
 
-    fullScreen(driver)
-    screenShot(driver, 'test')
-    image = "test.png"
-    shutil.copy2(dirScreenShot + "test.png", dirImage + image)
+    testResult = 'success'
     error = ''
   except Exception as e:
+    testResult = 'failure'
     error = traceback.format_exc()
-    fullScreen(driver)
-    screenShot(driver, 'failure')
-    image = "failure.png"
-    shutil.copy2(dirScreenShot + "failure.png", dirImage + image)
   finally:
+    image = '%s.png' % (testResult)
+    time.sleep(3) # wait for page transition
+    fullScreen(driver)
+    screenShot(driver, testResult)
+    shutil.copy2(dirScreenShot + image, dirImage + image)
+
     driver.close()
     driver.quit()
-    return {'error': error, 'image': image}
+    randamInt = random.randrange(1, 65535)
+    return render_template('test.html', error = error, image = image, randamInt = randamInt)
 
 if __name__ == '__main__':
   app.run(debug=True, host='0.0.0.0', port=80)

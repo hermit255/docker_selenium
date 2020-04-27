@@ -81,20 +81,20 @@ class FormSelect(ElementBase):
 
     if (method == 'index'):
       if not isinstance(key, int): raise Exception('arg2 expects int type but received ' + str(key))
-      xpathOption = '%s/option[%d]' % (xpath, key)
+      xpathOption = '%s/option[%d]' % (xpath, key + 1)
       WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: driver.find_element(BY, xpath))
+        lambda driver: driver.find_element(BY, xpathOption))
       select.select_by_index(key)
     elif (method == 'value'):
       xpathOption = '%s/option[@value="%s"]' % (xpath, key)
       WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: driver.find_element(BY, xpath))
+        lambda driver: driver.find_element(BY, xpathOption))
       select.select_by_value(str(key))
     elif (method == 'text'):
       if not isinstance(key, str): raise Exception('arg2 expects str type but received ' + str(key))
       xpathOption = '%s/option[text()="%s"]' % (xpath, key)
       WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: driver.find_element(BY, xpath))
+        lambda driver: driver.find_element(BY, xpathOption))
       select.select_by_visible_text(str(key))
     else:
       raise Exception('arg1 expects "index", "value", or "text"')
@@ -104,7 +104,7 @@ class FormRadios(ElementBase):
     base = INPUT_RADIOS
     option = '[@name="%s"]' % (name)
     self.nodeInput = base + option
-    self.xpath = '//' + base + option
+    self.xpath = '//%s%s' % (base, option)
 
   def __get__(self, obj, owner):
     elements = obj.driver.find_elements(BY, self.xpath)
@@ -130,14 +130,18 @@ class FormRadios(ElementBase):
         node = self.getForNode(nodeInput)
       else:
         node = nodeInput
-      xpath = '//' + node
+      xpath = '//%s' % (node)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: len(obj.driver.find_elements(BY, xpath)) >= key + 1 )
       elements = obj.driver.find_elements(BY, xpath)
       element = elements[key]
     elif (method == 'value'):
       optionForButton = '[@value="%s"]' % (key)
       nodeInput += optionForButton
       node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
-      xpath = '//' + node
+      xpath = '//%s' % (node)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: driver.find_element(BY, xpath))
       element = self.getElement(obj.driver, xpath)
     element.click()
 
@@ -168,14 +172,18 @@ class FormCheckbox(ElementBase):
 
     if (method == 'index'):
       node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
-      xpath = '//' + node
+      xpath = '//%s' % (node)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: len(obj.driver.find_elements(BY, xpath)) >= key + 1 )
       elements = obj.driver.find_elements(BY, xpath)
       element = elements[key]
     elif (method == 'value'):
       optionForButton = '[@value="%s"]' % (key)
       nodeInput += optionForButton
       node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
-      xpath = '//' + node
+      xpath = '//%s' % (node)
+      WebDriverWait(obj.driver, WAIT).until(
+        lambda driver: driver.find_element(BY, xpath))
       element = self.getElement(obj.driver, xpath)
     else:
       raise Exception('arg1 expects "index", "value", or "text"')
