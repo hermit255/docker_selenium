@@ -1,0 +1,16 @@
+<nav class="sidebar" style="width: 300px">
+  <div class="sidebar-header">
+      <h3>Sidebar</h3>
+  </div>
+  {% set pages = ['google', 'select', 'radio', 'checkbox', 'shinro', 'bus'] %}
+  <ul>
+  	{% for page in pages %}
+  	<li> <a href="{{ page }}">{{ page }}</a> </li>
+  	{% endfor %}
+  </ul>
+</nav>
+<style type="text/css">
+  .sidebar {
+    background-color: antiquewhite;
+  }
+</style>
