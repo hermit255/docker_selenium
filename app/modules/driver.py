@@ -52,7 +52,7 @@ def getDateTimeStr():
   return dt.strftime("%Y%m%d%H%M%S")
 
 def getFullPath(title: str, dirSub: str = ''):
-  Conf.dirBase = Conf.dirScreenShot
+  Conf.dirBase = Conf.dirSS
   directory = Conf.dirBase + dirSub
 
   if not os.path.exists(directory):

@@ -8,7 +8,6 @@ from modules.conf import Conf
 from pprint import pprint
 import traceback
 import time
-import shutil
 import random
 
 app = Flask(__name__)
@@ -69,7 +68,6 @@ def test(driver, page):
     time.sleep(3) # wait for page transition
     fullScreen(driver)
     screenShot(driver, testResult)
-    shutil.copy2(Conf.dirScreenShot + image, Conf.dirImage + image)
 
     driver.close()
     driver.quit()
