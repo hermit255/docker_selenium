@@ -28,6 +28,21 @@ class ElementBase:
   def countElement(self, driver, xpath) -> int :
     return len(driver.find_elements(BY, xpath))
 
+  def getWrapperNode(self, nodeInput):
+      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
+
+  def getForNode(self, nodeInput):
+      return 'label' + Xpath.getOptionByPairInput(nodeInput)
+
+  def getNodeToClick(self, nodeInput: str, countWrapper: int, countFor: int):
+      if ( countWrapper > 0 ):
+        node = self.getWrapperNode(nodeInput)
+      elif ( countFor > 0 ):
+        node = self.getForNode(nodeInput)
+      else:
+        node = nodeInput
+      return node
+
 class LinkText(ElementBase):
   def __init__(self, text: str):
     base = Xpath.textLink
@@ -55,6 +70,7 @@ class FormText(ElementBase):
   def __set__(self, obj, value):
     xpath = self.xpath
     element = self.getElement(obj.driver, xpath)
+    element.click()
     element.clear()
     element.send_keys(value)
 
@@ -119,17 +135,12 @@ class FormRadios(ElementBase):
     key = value[1]
 
     nodeInput = self.nodeInput
-    # 指定したnameを持つinputを囲むラベルがあればラベルをクリック対象に、なければinputを対象にする
+    # iputに対応する(forまたはinputを囲む)labelがあればクリック対象に、なければinputを対象にする
     countWrapper = self.countElement(obj.driver, '//' + self.getWrapperNode(nodeInput))
     countFor = self.countElement(obj.driver, '//' + self.getForNode(nodeInput))
 
     if (method == 'index'):
-      if ( countWrapper > 0 ):
-        node = self.getWrapperNode(nodeInput)
-      elif ( countFor > 0 ):
-        node = self.getForNode(nodeInput)
-      else:
-        node = nodeInput
+      node = self.getNodeToClick(nodeInput, countWrapper, countFor)
       xpath = '//%s' % (node)
       WebDriverWait(obj.driver, WAIT).until(
         lambda driver: len(obj.driver.find_elements(BY, xpath)) >= key + 1 )
@@ -138,18 +149,12 @@ class FormRadios(ElementBase):
     elif (method == 'value'):
       optionForButton = '[@value="%s"]' % (key)
       nodeInput += optionForButton
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      node = self.getNodeToClick(nodeInput, countWrapper, countFor)
       xpath = '//%s' % (node)
       WebDriverWait(obj.driver, WAIT).until(
         lambda driver: driver.find_element(BY, xpath))
       element = self.getElement(obj.driver, xpath)
     element.click()
-
-  def getWrapperNode(self, nodeInput):
-      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
-
-  def getForNode(self, nodeInput):
-      return 'label' + Xpath.getOptionByPairInput(nodeInput)
 
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
@@ -168,11 +173,12 @@ class FormCheckbox(ElementBase):
     action = value[2]
 
     nodeInput = self.nodeInput
-    # 指定したnameを持つinputを囲むラベルがあればラベルをクリック対象に、なければinputを対象にする
+    # iputに対応する(forまたはinputを囲む)labelがあればクリック対象に、なければinputを対象にする
     countWrapper = self.countElement(obj.driver, '//' + self.getWrapperNode(nodeInput))
+    countFor = self.countElement(obj.driver, '//' + self.getForNode(nodeInput))
 
     if (method == 'index'):
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      node = self.getNodeToClick(nodeInput, countWrapper, countFor)
       xpath = '//%s' % (node)
       WebDriverWait(obj.driver, WAIT).until(
         lambda driver: len(obj.driver.find_elements(BY, xpath)) >= key + 1 )
@@ -181,7 +187,7 @@ class FormCheckbox(ElementBase):
     elif (method == 'value'):
       optionForButton = '[@value="%s"]' % (key)
       nodeInput += optionForButton
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      node = self.getNodeToClick(nodeInput, countWrapper, countFor)
       xpath = '//%s' % (node)
       WebDriverWait(obj.driver, WAIT).until(
         lambda driver: driver.find_element(BY, xpath))
@@ -198,6 +204,3 @@ class FormCheckbox(ElementBase):
       if state: element.click()
     else:
       raise Exception('invalid action ' + action  + ' for ' + __class__.__name__)
-
-  def getWrapperNode(self, nodeInput):
-      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
