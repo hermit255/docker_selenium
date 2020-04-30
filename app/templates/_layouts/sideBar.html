@@ -2,15 +2,23 @@
   <div class="sidebar-header">
       <h3>Sidebar</h3>
   </div>
-  {% set pages = ['google', 'select', 'radio', 'checkbox', 'shinro', 'bus'] %}
+  {% set pages = ['google', 'select', 'radio', 'checkbox', 'label', 'shinro', 'bus'] %}
   <ul>
   	{% for page in pages %}
   	<li> <a href="{{ page }}">{{ page }}</a> </li>
   	{% endfor %}
   </ul>
 </nav>
-<style type="text/css">
+<style id="sidebarCss" type="text/css">
   .sidebar {
+    width: 300px;
+    height: 100vh;
     background-color: antiquewhite;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+  style#sidebarCss + div {
+    margin-left: 300px;
   }
 </style>

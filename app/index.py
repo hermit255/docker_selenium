@@ -42,6 +42,12 @@ def checkbox():
   page = QuickRefCheckboxPage(driver)
   return test(driver, page)
 
+@app.route('/label')
+def label():
+  driver = getChromeDriver()
+  page = QuickRefLabelPage(driver)
+  return test(driver, page)
+
 @app.route('/shinro')
 def shinro():
   driver = getChromeDriver()

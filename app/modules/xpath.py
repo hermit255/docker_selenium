@@ -21,3 +21,15 @@ class Xpath:
   def getOptionByWrappedInput(node: str):
     # 囲まれているinputノードからinputを探すためのオプションを返す
     return '[descendant::%s]' % node
+
+  def getLabelbyInput(node: str):
+    # 引数のinputノードに対応するlabelのノード
+    optionFor = '@for=ancestor::html//%s/attribute::id' % (node)
+    optionWrap = 'descendant::%s' % (node)
+    return 'label[%s or %s]' % (optionFor, optionWrap)
+
+  def getInputbyLabel(node: str):
+    # 引数のlaeblノードに対応するinputのノード
+    optionFor = '@id=ancestor::html//%s/attribute::for' % (node)
+    optionWrap = 'ancestor::%s' % (node)
+    return 'Input[%s or %s]' % (optionFor, optionWrap)

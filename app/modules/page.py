@@ -9,13 +9,18 @@ from .xpath import Xpath
 WAIT = 5
 BY = 'xpath'
 
+class PageBase:
+  def __init__(self, driver: webdriver):
+    self.driver = driver
+
 class ElementBase:
   def __init__(self, xpath: str):
     self.xpath = xpath
 
   def __get__(self, obj, owner):
+    driver = obj.driver
     xpath = self.xpath
-    return self.getElement(obj.driver, xpath).click()
+    return self.getElement(driver, xpath).click()
 
   def __set__(self, obj, value):
     pass
@@ -48,13 +53,15 @@ class FormText(ElementBase):
     self.xpath = '//%s%s' % (base, option)
 
   def __get__(self, obj, owner):
+    driver = obj.driver
     xpath = self.xpath
-    element = self.getElement(obj.driver, xpath)
+    element = self.getElement(driver, xpath)
     return element.get_attribute("value")
 
   def __set__(self, obj, value):
+    driver = obj.driver
     xpath = self.xpath
-    element = self.getElement(obj.driver, xpath)
+    element = self.getElement(driver, xpath)
     element.clear()
     element.send_keys(value)
 
@@ -65,41 +72,47 @@ class FormSelect(ElementBase):
     self.xpath = '//%s%s' % (base, option)
 
   def __get__(self, obj, owner):
+    driver = obj.driver
     xpath = self.xpath
-    element = self.getElement(obj.driver, xpath)
+    element = self.getElement(driver, xpath)
     select = Select(element)
-    return element.get_attribute("value")
+    selectedOp = select.all_selected_options
+    list = []
+    for element in selectedOp:
+      list.append(element.text)
+    return list
 
   def __set__(self, obj, value: tuple):
+    driver = obj.driver
     method = value[0]
     key = value[1]
 
     xpath = self.xpath
-    element = self.getElement(obj.driver, xpath)
+    element = self.getElement(driver, xpath)
     element.click()
     select = Select(element)
 
     if (method == 'index'):
       if not isinstance(key, int): raise Exception('arg2 expects int type but received ' + str(key))
       xpathOption = '%s/option[%d]' % (xpath, key + 1)
-      WebDriverWait(obj.driver, WAIT).until(
+      WebDriverWait(driver, WAIT).until(
         lambda driver: driver.find_element(BY, xpathOption))
       select.select_by_index(key)
     elif (method == 'value'):
       xpathOption = '%s/option[@value="%s"]' % (xpath, key)
-      WebDriverWait(obj.driver, WAIT).until(
+      WebDriverWait(driver, WAIT).until(
         lambda driver: driver.find_element(BY, xpathOption))
       select.select_by_value(str(key))
     elif (method == 'text'):
       if not isinstance(key, str): raise Exception('arg2 expects str type but received ' + str(key))
       xpathOption = '%s/option[text()="%s"]' % (xpath, key)
-      WebDriverWait(obj.driver, WAIT).until(
+      WebDriverWait(driver, WAIT).until(
         lambda driver: driver.find_element(BY, xpathOption))
       select.select_by_visible_text(str(key))
     else:
       raise Exception('arg1 expects "index", "value", or "text"')
 
-class FormRadios(ElementBase):
+class FormRadio(ElementBase):
   def __init__(self, name: str):
     base = Xpath.formRadio
     option = '[@name="%s"]' % (name)
@@ -107,7 +120,8 @@ class FormRadios(ElementBase):
     self.xpath = '//%s%s' % (base, option)
 
   def __get__(self, obj, owner):
-    elements = obj.driver.find_elements(BY, self.xpath)
+    driver = obj.driver
+    elements = driver.find_elements(BY, self.xpath)
     for element in elements:
       if element.is_selected():
         elemSelected = element
@@ -115,77 +129,78 @@ class FormRadios(ElementBase):
     return elemSelected.get_attribute("value")
 
   def __set__(self, obj, value: tuple):
+    driver = obj.driver
     method = value[0]
     key = value[1]
 
     nodeInput = self.nodeInput
-    # 指定したnameを持つinputを囲むラベルがあればラベルをクリック対象に、なければinputを対象にする
-    countWrapper = self.countElement(obj.driver, '//' + self.getWrapperNode(nodeInput))
-    countFor = self.countElement(obj.driver, '//' + self.getForNode(nodeInput))
+    # 指定したnameを持つinputに対応するラベルをクリック対象に、なければinputを対象にする
+    nodeLabel = Xpath.getLabelbyInput(nodeInput)
+    countLabel = self.countElement(driver, '//' + nodeLabel)
 
     if (method == 'index'):
-      if ( countWrapper > 0 ):
-        node = self.getWrapperNode(nodeInput)
-      elif ( countFor > 0 ):
-        node = self.getForNode(nodeInput)
-      else:
-        node = nodeInput
+      node = Xpath.getLabelbyInput(nodeInput) if ( countLabel > 0 ) else nodeInput
       xpath = '//%s' % (node)
-      WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: len(obj.driver.find_elements(BY, xpath)) >= key + 1 )
-      elements = obj.driver.find_elements(BY, xpath)
+      WebDriverWait(driver, WAIT).until(
+        lambda driver: len(driver.find_elements(BY, xpath)) >= key + 1 )
+      elements = driver.find_elements(BY, xpath)
       element = elements[key]
     elif (method == 'value'):
-      optionForButton = '[@value="%s"]' % (key)
-      nodeInput += optionForButton
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      optionForInput = '[@value="%s"]' % (key)
+      nodeInput += optionForInput
+      node = Xpath.getLabelbyInput(nodeInput) if ( countLabel > 0 ) else nodeInput
       xpath = '//%s' % (node)
-      WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: driver.find_element(BY, xpath))
-      element = self.getElement(obj.driver, xpath)
+      element = self.getElement(driver, xpath)
+    elif (method == 'label'):
+      optionForLabel = '[.="%s"]' % (key)
+      node = Xpath.getLabelbyInput(nodeInput) + optionForLabel
+      xpath = '//%s' % (node)
+      element = self.getElement(driver, xpath)
+    else:
+      raise Exception('arg1 expects "index", "value", or "text"')
     element.click()
-
-  def getWrapperNode(self, nodeInput):
-      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
-
-  def getForNode(self, nodeInput):
-      return 'label' + Xpath.getOptionByPairInput(nodeInput)
 
 class FormCheckbox(ElementBase):
   def __init__(self, name: str):
     base = Xpath.formCheckbox
     option = '[@name="%s"]' % (name)
     self.nodeInput = base + option
-    self.xpath = '//' + base + option
+    self.xpath = '//%s%s' % (base, option)
 
   def __get__(self, obj, owner):
+    driver = obj.driver
     xpath = self.xpath
-    return self.getElement(obj.driver, xpath)
+    return self.getElement(driver, xpath)
 
   def __set__(self, obj, value: tuple):
+    driver = obj.driver
     method = value[0]
     key = value[1]
     action = value[2]
 
     nodeInput = self.nodeInput
-    # 指定したnameを持つinputを囲むラベルがあればラベルをクリック対象に、なければinputを対象にする
-    countWrapper = self.countElement(obj.driver, '//' + self.getWrapperNode(nodeInput))
+    # 指定したnameを持つinputに対応するラベルをクリック対象に、なければinputを対象にする
+    nodeLabel = Xpath.getLabelbyInput(nodeInput)
+    countLabel = self.countElement(driver, '//' + nodeLabel)
 
     if (method == 'index'):
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      node = Xpath.getLabelbyInput(nodeInput) if ( countLabel > 0 ) else nodeInput
       xpath = '//%s' % (node)
-      WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: len(obj.driver.find_elements(BY, xpath)) >= key + 1 )
-      elements = obj.driver.find_elements(BY, xpath)
+      WebDriverWait(driver, WAIT).until(
+        lambda driver: len(driver.find_elements(BY, xpath)) >= key + 1 )
+      elements = driver.find_elements(BY, xpath)
       element = elements[key]
     elif (method == 'value'):
-      optionForButton = '[@value="%s"]' % (key)
-      nodeInput += optionForButton
-      node = self.getWrapperNode(nodeInput) if ( countWrapper > 0 ) else nodeInput
+      optionForInput = '[@value="%s"]' % (key)
+      nodeInput += optionForInput
+      node = Xpath.getLabelbyInput(nodeInput) if ( countLabel > 0 ) else nodeInput
       xpath = '//%s' % (node)
-      WebDriverWait(obj.driver, WAIT).until(
-        lambda driver: driver.find_element(BY, xpath))
-      element = self.getElement(obj.driver, xpath)
+      element = self.getElement(driver, xpath)
+    elif (method == 'label'):
+      optionForLabel = '[.="%s"]' % (key)
+      node = Xpath.getLabelbyInput(nodeInput)
+      xpath = '//%s' % (node)
+      element = self.getElement(driver, xpath)
     else:
       raise Exception('arg1 expects "index", "value", or "text"')
 
@@ -197,7 +212,4 @@ class FormCheckbox(ElementBase):
     elif (action == 'uncheck'):
       if state: element.click()
     else:
-      raise Exception('invalid action ' + action  + ' for ' + __class__.__name__)
-
-  def getWrapperNode(self, nodeInput):
-      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
+      raise Exception('arg2 expects "toggle", "check", or "uncheck"')

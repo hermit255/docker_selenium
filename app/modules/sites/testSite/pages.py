@@ -30,7 +30,7 @@ class QuickRefSelectPage:
     self.bloodSelect = ('text', 'AB型')
 
 class QuickRefRadioPage:
-  radios = FormRadios('hyouka')
+  radios = FormRadio('hyouka')
 
   def __init__(self, driver):
     self.driver = driver
@@ -54,6 +54,16 @@ class QuickRefCheckboxPage:
     self.checkbox = ('index', 0, 'uncheck')
     self.checkbox = ('value', '2', 'check')
     self.checkbox = ('index', 2, 'toggle')
+
+class QuickRefLabelPage(PageBase):
+  sexRadio = FormRadio('sex')
+  bloodRadio = FormRadio('blood')
+
+  def test(self):
+    url = 'http://www.htmq.com/html/label.shtml'
+    self.driver.get(url)
+    self.sexRadio = ('label', "女")
+    self.bloodRadio = ('label', "O型")
 
 class DocsApplyPage:
   first = ElementBase('//*[.="大学"]')
