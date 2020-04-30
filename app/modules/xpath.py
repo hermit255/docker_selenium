@@ -9,10 +9,10 @@ class Xpath:
   formSelect = 'select'
 
   """options"""
-  def getOptionByPairInput(node: str):
+  def getOptionByPairLabel(node: str):
     # labelノードから対応するinputを探すためのオプションを返す
     return '[@id=ancestor::html//%s/attribute::for]' % node
-  def getOptionByPairLabel(node: str):
+  def getOptionByPairInput(node: str):
     # inputノードから対応するlabelを探すためのオプションを返す
     return '[@for=ancestor::html//%s/attribute::id]' % node
   def getOptionByWrappingLabel(node: str):

@@ -14,7 +14,7 @@ class Analizer:
   images: list
   headers: list
 
-  def __init__(self, url: str, driver: webdriver):
+  def __init__(self, driver: webdriver, url: str):
     self.driver = driver
     self.driver.get(url)
 

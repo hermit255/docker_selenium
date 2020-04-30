@@ -33,6 +33,21 @@ class ElementBase:
   def countElement(self, driver, xpath) -> int :
     return len(driver.find_elements(BY, xpath))
 
+  def getWrapperNode(self, nodeInput):
+      return 'label' + Xpath.getOptionByWrappedInput(nodeInput)
+
+  def getForNode(self, nodeInput):
+      return 'label' + Xpath.getOptionByPairInput(nodeInput)
+
+  def getNodeToClick(self, nodeInput: str, countWrapper: int, countFor: int):
+      if ( countWrapper > 0 ):
+        node = self.getWrapperNode(nodeInput)
+      elif ( countFor > 0 ):
+        node = self.getForNode(nodeInput)
+      else:
+        node = nodeInput
+      return node
+
 class LinkText(ElementBase):
   def __init__(self, text: str):
     base = Xpath.textLink
