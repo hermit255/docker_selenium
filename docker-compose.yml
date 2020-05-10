@@ -20,5 +20,5 @@ services:
       - selenium-chrome
     working_dir: /app
     ports:
-      - "8080:80"
+      - "8081:80"
     command: python /app/index.py

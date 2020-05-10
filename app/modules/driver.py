@@ -35,13 +35,8 @@ def screenShot(driver: webdriver, title: str = None, dirSub: str = ''):
   print('screenShot exported:' + getFullPath(title, dirSub))
 
 def fullScreen(driver: webdriver):
-  WebDriverWait(driver, 3).until(
-    lambda driver: driver.find_element('xpath', '//html'))
-  html = driver.find_element('xpath', '//html')
-
   page_width = driver.execute_script('return document.body.scrollWidth')
   page_height = driver.execute_script('return document.body.scrollHeight')
-
   driver.set_window_size(page_width, page_height)
 
 def setWindowSize(driver: webdriver, value: tuple):
@@ -55,7 +50,6 @@ def getFullPath(title: str, dirSub: str = ''):
   Conf.dirBase = Conf.dirSS
   directory = Conf.dirBase + dirSub
 
-  if not os.path.exists(directory):
-    os.makedirs(directory)
+  if not os.path.exists(directory): os.makedirs(directory)
 
   return directory + title + '.png'
