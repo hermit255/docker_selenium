@@ -6,6 +6,7 @@ services:
       - "4444:4444"
       - "5900:5900"
     volumes:
+      - /dev/shm:/dev/shm # not to page crash
       - ./app:/app
     working_dir: /app
   app:
@@ -18,3 +19,6 @@ services:
     depends_on:
       - selenium-chrome
     working_dir: /app
+    ports:
+      - "8081:80"
+    command: python /app/index.py

@@ -1,0 +1,73 @@
+{% extends "/_layouts/default.html" %}
+{% block content %}
+
+<h1>Capture</h1>
+<form action="" method="POST">
+  <p> docker_host is <strong> {{ docker_host_url }} </strong></p>
+  <table class="table table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th> usage </th>
+        <th> xpath example </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td> whole page </td>
+        <td> //html </td>
+      </tr>
+      <tr>
+        <td> link </td>
+        <td> //a[text()]|//img[ancestor::a] </td>
+      </tr>
+      <tr>
+        <td> form </td>
+        <td> //label[@for or descendant::input] </td>
+      </tr>
+      <tr>
+        <td> by class </td>
+        <td> //*[contains(@class, "something")] </td>
+      </tr>
+      <tr>
+        <td> by text </td>
+        <td> //*[contains(text(), "something")] </td>
+      </tr>
+      <tr>
+        <td> by id </td>
+        <td> //*[@id="something")] </td>
+      </tr>
+    </tbody>
+  </table>
+  <div>
+    <label for="url">url</label>
+    <input type="text" name="url" id="url" value="{{ data.url or docker_host_url }}">
+  </div>
+  <div>
+    <label for="xpath">xpath</label>
+    <input type="text" name="xpath" id="xpath" value="{{ data.xpath or '//html'}}">
+  </div>
+  <input type="submit" value="Capture">
+</form>
+
+<div>
+  <table class="table table-bordered">
+    {% for img in data.ss %}
+    <tr>
+      <td> {{ data.ss.index(img) + 1 }} </td>
+      <td>
+        <img class="border border-light" src="data:image/png;base64,{{ img }}" />
+      </td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td> report </td>
+      <td>
+        <img class="border border-light" src="data:image/png;base64,{{ data.report }}" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+<style type="text/css">
+</style>
+{% endblock %}
