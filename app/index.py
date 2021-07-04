@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, Response
 
 from modules.driver import getChromeDriver, getChromeHeadlessDriver, screenShot, fullScreen
 from modules.sites.testSite.pages import *
@@ -13,14 +13,15 @@ import random
 import json
 from time import sleep
 import cv2
-import os
 import math
 import io
 import base64
-import numpy as np
+import re
+import pandas as pd
 
 app = Flask(__name__)
 
+""" operation """
 @app.route('/')
 def index():
   return render_template('index.html')
@@ -80,10 +81,14 @@ def test(driver, page):
     driver.quit()
     return render_template('test.html', error = error, image = image, randamInt = random.randrange(1, 65535))
 
+"""
+analizer
+画面内の特定要素をリストアップする機能
+"""
 @app.route('/analizer')
 def analizer():
   #url = "https://google.com"
-  url = "https://qiita.com/yoshi0518/items/14690172f41c32c8286b"
+  url = "https://inuwaka-blog.com"
   driver = getChromeDriver()
   try:
     analizer = Analizer(driver, url)
@@ -96,6 +101,65 @@ def analizer():
     driver.close()
     driver.quit()
     return render_template('analizer.html', data = data, error = error)
+
+@app.route('/api/crawler', methods=["GET", "POST"])
+def crawler():
+  """
+    List urlList
+    {
+      "name": "{page_name(free)}",
+      "url": "http://{url}"
+    }
+  """
+  host = request.form['url'] if ("url" in request.form) else "http://inuwaka-blog.com"
+  urlList = []
+  urlList.append({
+    "name": "base",
+    "url": host
+    })
+  driver = getChromeDriver()
+  data = {}
+  error = ''
+  try:
+    for v in urlList:
+      if re.match('^%s.*$' % host, v['url']):
+        url = v['url']
+      elif re.match('^/.*$', v['url']):
+        url = host + v['url']
+      else:
+        continue
+      analizer = Analizer(driver, url)
+      """ List data """
+      """
+        return of getLinks {
+          'tag': element.tag_name,
+          'attrs': self.getAttrs(element),
+          'text': element.text,
+          'ss': ss,
+          'rect': element.rect,
+        }
+      """
+      data = analizer.getLinks()
+      for d in data:
+        href = d["attrs"]["href"]
+        if re.match('^/.*$', href): href = host + href
+        if  sum(1 for x in urlList if x['url'] == href) == 0:
+          row = {"name": d["text"], "url": href}
+          urlList.append(row)
+  except Exception as e:
+    error = traceback.format_exc()
+  finally:
+    driver.close()
+    driver.quit()
+
+  return Response(
+    pd.DataFrame(urlList).to_csv(encoding='utf-8'),
+    mimetype="text/csv",
+    headers={"Content-disposition":
+    "attachment; filename=test.csv"})
+  return
+
+  # return jsonify({"urlList": urlList, "error": error})
 
 @app.route('/capture', methods=["GET", "POST"])
 def capture():

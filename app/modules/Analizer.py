@@ -19,22 +19,25 @@ class Analizer:
     self.driver.get(url)
 
   def getLinks(self):
-    return self.xxx('//a')
-
-  def xxx(self, xpath):
+    xpath = '//a'
     list = self.driver.find_elements(By.XPATH, xpath)
     ret = []
     for element in list:
       ret.append(self.getInfo(element))
     return ret
+
   def findImageLinks():
     list = self.driver.find_elements(By.XPATH, '//' + Xpath.imageLink)
+
   def Forms():
     list = self.driver.find_elements(By.XPATH, '//form')
+
   def Images():
     list = self.driver.find_elements(By.XPATH, '//img')
+
   def Headers():
     pass
+
   def getInfo(self, element: WebElement):
     try:
       ss = element.screenshot_as_base64

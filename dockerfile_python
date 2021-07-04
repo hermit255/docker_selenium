@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN apt-get update && apt-get -y install libopencv-dev iproute2 iputils-ping \
  && pip install --upgrade pip \
- && pip install selenium flask opencv-python
+ && pip install selenium flask opencv-python pandas
