@@ -107,47 +107,22 @@ def crawler():
   """
     List urlList
     {
-      "name": "{page_name(free)}",
+      "label": "{page_name(free)}",
       "url": "http://{url}"
     }
   """
-  host = request.form['url'] if ("url" in request.form) else "http://inuwaka-blog.com"
-  urlList = []
-  urlList.append({
-    "name": "base",
-    "url": host
-    })
+  #host = request.form['url'] if ("url" in request.form) else "http://inuwaka-blog.com"
+  host = request.form['url'] if ("url" in request.form) else "https://dev.tlsc.grooowth.co.jp"
+  label = 'root'
   driver = getChromeDriver()
   data = {}
   error = ''
+  urlList = []
   try:
-    for v in urlList:
-      if re.match('^%s.*$' % host, v['url']):
-        url = v['url']
-      elif re.match('^/.*$', v['url']):
-        url = host + v['url']
-      else:
-        continue
-      analizer = Analizer(driver, url)
-      """ List data """
-      """
-        return of getLinks {
-          'tag': element.tag_name,
-          'attrs': self.getAttrs(element),
-          'text': element.text,
-          'ss': ss,
-          'rect': element.rect,
-        }
-      """
-      data = analizer.getLinks()
-      for d in data:
-        href = d["attrs"]["href"]
-        if re.match('^/.*$', href): href = host + href
-        if  sum(1 for x in urlList if x['url'] == href) == 0:
-          row = {"name": d["text"], "url": href}
-          urlList.append(row)
+    urlList = crawl(urlList, host, label, driver, host, 0)
   except Exception as e:
     error = traceback.format_exc()
+    return jsonify({"error": error})
   finally:
     driver.close()
     driver.quit()
@@ -157,9 +132,34 @@ def crawler():
     mimetype="text/csv",
     headers={"Content-disposition":
     "attachment; filename=test.csv"})
-  return
 
   # return jsonify({"urlList": urlList, "error": error})
+
+""" 初期URLリストおよびリストから派生したURLを巡回してリンク先リストを追加する """
+def crawl(urlList: list, url: str, label: str, driver: object, host: str, level: int):
+  updated = urlList
+  if re.match('^/.*$', url):
+    modifiedUrl = host + url
+  else:
+    modifiedUrl = url
+  # 既存リストにないURLだけを既存リストに追加＋再帰的にリンク発掘
+  exists = sum(1 for u in updated if u['url'] == modifiedUrl) > 0
+  maxLevel = level > 4
+  innerPage = re.match('^#.*$', modifiedUrl)
+  externalSite = not re.match('^%s.*$' % host, modifiedUrl)
+  if exists or maxLevel or innerPage or externalSite: return updated
+  updated.append({"label": label, "url": modifiedUrl, "level": level})
+
+  analizer = Analizer(driver, modifiedUrl)
+  time.sleep(1)
+  children = analizer.getLinks()
+  # 取得したhrefと既存リストURLとの重複チェック
+  for c in children:
+    if 'href' in c["attrs"]: href = c["attrs"]["href"]
+    text = c["text"]
+    if  sum(1 for u in updated if u['url'] == href) == 0:
+      updated = crawl(updated, href, text, driver, host, level + 1)
+  return updated
 
 @app.route('/capture', methods=["GET", "POST"])
 def capture():

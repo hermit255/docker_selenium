@@ -40,16 +40,20 @@ class Analizer:
 
   def getInfo(self, element: WebElement):
     try:
-      ss = element.screenshot_as_base64
+      ss = ''
+      #ss = element.screenshot_as_base64
     except Exception as e:
       ss = ''
-    return {
-      'tag': element.tag_name,
-      'attrs': self.getAttrs(element),
-      'text': element.text,
-      'ss': ss,
-      'rect': element.rect,
-    }
+    except StaleElementReferenceException as s:
+      ss = ''
+    finally:
+      return {
+        'tag': element.tag_name,
+        'attrs': self.getAttrs(element),
+        'text': element.text,
+        'ss': ss,
+        'rect': element.rect,
+      }
   def getAttrs(self, element: WebElement) -> dict:
     return self.driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', element)
 
