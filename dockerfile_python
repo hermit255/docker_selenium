@@ -1,9 +1,0 @@
-# from https://hodalog.com/use-selenium-on-docker/
-FROM python:3.6-slim
-
-ENV PYTHONIOENCODING utf-8
-WORKDIR /app
-
-RUN apt-get update && apt-get -y install libopencv-dev iproute2 iputils-ping \
- && pip install --upgrade pip \
- && pip install selenium flask opencv-python pandas

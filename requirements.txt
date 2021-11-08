@@ -1,0 +1,6 @@
+selenium
+flask
+pandas
+numpy
+requests
+opencv-python

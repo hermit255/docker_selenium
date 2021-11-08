@@ -10,9 +10,7 @@ services:
       - ./app:/app
     working_dir: /app
   app:
-    build:
-      context: ./
-      dockerfile: dockerfile_python
+    build: .
     tty: true
     volumes:
       - ./app:/app
