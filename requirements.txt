@@ -4,3 +4,5 @@ pandas
 numpy
 requests
 opencv-python
+lxml
+bs4
